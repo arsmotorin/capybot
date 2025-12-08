@@ -624,10 +624,11 @@ func (rh *RatingHandler) HandleRatings(c tb.Context) error {
 	return rh.showRatingsPage(c, 0, "")
 }
 
-// showRatingsPage shows paginated ratings
+// showRatingsPage shows paginated ratings (edits the message if called from callback)
 func (rh *RatingHandler) showRatingsPage(c tb.Context, page int, search string) error {
 	lang := rh.getLangForUser(c.Sender())
 	msgs := i18n.Get().T(lang)
+	editMode := c.Callback() != nil // If callback exists, we're editing
 
 	var reviews []Review
 	if search != "" {
@@ -694,7 +695,14 @@ func (rh *RatingHandler) showRatingsPage(c tb.Context, page int, search string) 
 	buttons = append(buttons, []tb.InlineButton{{Data: "ratings_search", Text: msgs.Rating.BtnSearch}})
 
 	kb := &tb.ReplyMarkup{InlineKeyboard: buttons}
-	_, _ = rh.bot.Send(c.Chat(), sb.String(), kb, tb.ModeMarkdown)
+
+	if editMode {
+		// Edit existing message when navigating pages
+		_, _ = rh.bot.Edit(c.Message(), sb.String(), kb, tb.ModeMarkdown)
+	} else {
+		// Send a new message when initially opening /ratings
+		_, _ = rh.bot.Send(c.Chat(), sb.String(), kb, tb.ModeMarkdown)
+	}
 	return nil
 }
 
