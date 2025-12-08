@@ -2,19 +2,17 @@ package bot
 
 import (
 	"UEPB/internal/core"
-	"time"
 
 	tb "gopkg.in/telebot.v4"
 )
 
-// QuestionInterface lists question methods.
-type QuestionInterface = core.QuestionInterface
-
-type QuizInterface = core.QuizInterface
-
-type BlacklistInterface = core.BlacklistInterface
-
-type AdminHandlerInterface = core.AdminHandlerInterface
+// Type aliases for core interfaces
+type (
+	QuestionInterface     = core.QuestionInterface
+	QuizInterface         = core.QuizInterface
+	BlacklistInterface    = core.BlacklistInterface
+	AdminHandlerInterface = core.AdminHandlerInterface
+)
 
 // FeatureHandlerInterface lists feature methods
 type FeatureHandlerInterface interface {
@@ -34,5 +32,3 @@ type FeatureHandlerInterface interface {
 	CreateQuizHandler(i int, q QuestionInterface, btn tb.InlineButton) func(tb.Context) error
 	FilterMessage(c tb.Context) error
 }
-
-var _ = time.Now

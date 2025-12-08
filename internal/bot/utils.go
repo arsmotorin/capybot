@@ -1,12 +1,13 @@
 package bot
 
 import (
-	"UEPB/internal/core"
-	"UEPB/internal/i18n"
 	"fmt"
 	"strings"
 	"sync"
 	"time"
+
+	"UEPB/internal/core"
+	"UEPB/internal/i18n"
 
 	"github.com/sirupsen/logrus"
 	tb "gopkg.in/telebot.v4"
@@ -45,41 +46,27 @@ func NewFeatureHandler(bot *tb.Bot, state core.UserState, quiz core.QuizInterfac
 }
 
 // getLangForUser returns language for a specific user based on their Telegram language
-func getLangForUser(user *tb.User, userLanguages map[int64]i18n.Lang, userLanguagesMu *sync.RWMutex) i18n.Lang {
+func getLangForUser(user *tb.User, _ map[int64]i18n.Lang, _ *sync.RWMutex) i18n.Lang {
 	if user == nil {
-		logrus.Warn("getLangForUser: user is nil, returning default")
 		return i18n.Get().GetDefault()
 	}
-
 	langCode := strings.ToLower(strings.TrimSpace(user.LanguageCode))
-
-	// If language code is empty, use default
 	if langCode == "" {
 		return i18n.Get().GetDefault()
 	}
 
-	// Supported languages mapping
-	supportedLanguages := map[string]i18n.Lang{
-		"pl": i18n.PL,
-		"en": i18n.EN,
-		"ru": i18n.RU,
-		"uk": i18n.UK,
-		"be": i18n.BE,
+	langMap := map[string]i18n.Lang{
+		"pl": i18n.PL, "en": i18n.EN, "ru": i18n.RU, "uk": i18n.UK, "be": i18n.BE,
 	}
 
-	// Try exact match first
-	if lang, ok := supportedLanguages[langCode]; ok {
+	if lang, ok := langMap[langCode]; ok {
 		return lang
 	}
-
-	// Try prefix match (e.g., "en-US" -> "en")
-	for code, lang := range supportedLanguages {
+	for code, lang := range langMap {
 		if strings.HasPrefix(langCode, code) {
 			return lang
 		}
 	}
-
-	// Unknown language, use default
 	return i18n.Get().GetDefault()
 }
 
@@ -232,7 +219,6 @@ func (fh *FeatureHandler) HandleStart(c tb.Context) error {
 }
 
 // HandlePrivateMessage handles any non-command private message
-func (fh *FeatureHandler) HandlePrivateMessage(c tb.Context) error {
-	// No special handling needed for private messages
+func (fh *FeatureHandler) HandlePrivateMessage(_ tb.Context) error {
 	return nil
 }

@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 )
@@ -17,12 +19,8 @@ type Blacklist struct {
 
 // NewBlacklist creates a blocklist backed by a JSON file in data/
 func NewBlacklist(file string) BlacklistInterface {
-	dataDir := "data"
-	_ = os.MkdirAll(dataDir, 0755)
-	if !strings.HasPrefix(file, "data/") {
-		file = "data/" + file
-	}
-	bl := &Blacklist{file: file}
+	_ = os.MkdirAll("data", 0755)
+	bl := &Blacklist{file: filepath.Join("data", filepath.Base(file))}
 	bl.load()
 	return bl
 }
@@ -31,10 +29,7 @@ func NewBlacklist(file string) BlacklistInterface {
 func (b *Blacklist) AddPhrase(words []string) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	lower := make([]string, len(words))
-	for i, w := range words {
-		lower[i] = strings.ToLower(w)
-	}
+	lower := toLowerSlice(words)
 	b.Phrases = append(b.Phrases, lower)
 	_ = b.save()
 }
@@ -43,19 +38,24 @@ func (b *Blacklist) AddPhrase(words []string) {
 func (b *Blacklist) RemovePhrase(words []string) bool {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	lower := make([]string, len(words))
-	for i, w := range words {
-		lower[i] = strings.ToLower(w)
-	}
-	target := strings.Join(lower, " ")
-	for i, p := range b.Phrases {
-		if strings.Join(p, " ") == target {
-			b.Phrases = append(b.Phrases[:i], b.Phrases[i+1:]...)
-			_ = b.save()
-			return true
-		}
+	target := strings.Join(toLowerSlice(words), " ")
+	before := len(b.Phrases)
+	b.Phrases = slices.DeleteFunc(b.Phrases, func(p []string) bool {
+		return strings.Join(p, " ") == target
+	})
+	if len(b.Phrases) < before {
+		_ = b.save()
+		return true
 	}
 	return false
+}
+
+func toLowerSlice(words []string) []string {
+	result := make([]string, len(words))
+	for i, w := range words {
+		result[i] = strings.ToLower(w)
+	}
+	return result
 }
 
 // CheckMessage checks if a message contains any blacklisted phrases
@@ -64,34 +64,24 @@ func (b *Blacklist) CheckMessage(msg string) bool {
 	defer b.mu.RUnlock()
 	text := strings.ToLower(msg)
 	words := strings.Fields(text)
-	for _, phrase := range b.Phrases {
+	return slices.ContainsFunc(b.Phrases, func(phrase []string) bool {
 		if len(phrase) == 1 {
-			for _, w := range words {
-				if w == phrase[0] {
-					return true
-				}
-			}
-			continue
+			return slices.Contains(words, phrase[0])
 		}
-		found := true
 		for _, pw := range phrase {
 			if !strings.Contains(text, pw) {
-				found = false
-				break
+				return false
 			}
 		}
-		if found {
-			return true
-		}
-	}
-	return false
+		return true
+	})
 }
 
 // List returns a copy of the blacklisted phrases
 func (b *Blacklist) List() [][]string {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
-	return append([][]string(nil), b.Phrases...)
+	return slices.Clone(b.Phrases)
 }
 
 // save persists the blacklist to disk
@@ -106,7 +96,7 @@ func (b *Blacklist) save() error {
 	return nil
 }
 
-// load reads the blacklist from disk
+// load reads the blacklist from the disk
 func (b *Blacklist) load() {
 	data, err := os.ReadFile(b.file)
 	if err != nil {

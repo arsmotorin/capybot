@@ -1,38 +1,32 @@
 package bot
 
 import (
-	"UEPB/internal/core"
-	"UEPB/internal/i18n"
 	"fmt"
 	"time"
+
+	"UEPB/internal/core"
+	"UEPB/internal/i18n"
 
 	tb "gopkg.in/telebot.v4"
 )
 
-// CreateInlineButton helper
-func CreateInlineButton(unique, text string) tb.InlineButton {
+func newBtn(unique, text string) tb.InlineButton {
 	return tb.InlineButton{Unique: unique, Text: text}
 }
 
 // StudentButton returns student button
 func StudentButton() tb.InlineButton {
-	lang := i18n.Get().GetDefault()
-	msgs := i18n.Get().T(lang)
-	return CreateInlineButton("student", msgs.Buttons.Student)
+	return newBtn("student", i18n.Get().T(i18n.Get().GetDefault()).Buttons.Student)
 }
 
 // GuestButton returns guest button
 func GuestButton() tb.InlineButton {
-	lang := i18n.Get().GetDefault()
-	msgs := i18n.Get().T(lang)
-	return CreateInlineButton("guest", msgs.Buttons.Guest)
+	return newBtn("guest", i18n.Get().T(i18n.Get().GetDefault()).Buttons.Guest)
 }
 
 // AdsButton returns ads button
 func AdsButton() tb.InlineButton {
-	lang := i18n.Get().GetDefault()
-	msgs := i18n.Get().T(lang)
-	return CreateInlineButton("ads", msgs.Buttons.Ads)
+	return newBtn("ads", i18n.Get().T(i18n.Get().GetDefault()).Buttons.Ads)
 }
 
 // HandleStudent starts quiz
@@ -111,23 +105,31 @@ func (q Question) GetAnswer() string             { return q.Answer }
 type Quiz struct{ Questions []Question }
 
 func (quiz Quiz) GetQuestions() []core.QuestionInterface {
-	list := make([]core.QuestionInterface, len(quiz.Questions))
-	for i, qq := range quiz.Questions {
-		list[i] = qq
+	result := make([]core.QuestionInterface, len(quiz.Questions))
+	for i := range quiz.Questions {
+		result[i] = quiz.Questions[i]
 	}
-	return list
+	return result
 }
 
 // DefaultQuiz returns default quiz
 func DefaultQuiz() core.QuizInterface {
-	lang := i18n.Get().GetDefault()
-	msgs := i18n.Get().T(lang)
-
+	msgs := i18n.Get().T(i18n.Get().GetDefault())
 	return Quiz{Questions: []Question{
-		{msgs.Quiz.Question1, []tb.InlineButton{{Unique: "q1_usos", Text: "USOS"}, {Unique: "q1_edupl", Text: "EDUPL"}, {Unique: "q1_muci", Text: "MUCI"}}, "q1_usos"},
-		{msgs.Quiz.Question2, []tb.InlineButton{{Unique: "q2_gmail", Text: "Gmail"}, {Unique: "q2_outlook", Text: "Outlook"}, {Unique: "q2_yahoo", Text: "Yahoo"}}, "q2_outlook"},
-		{msgs.Quiz.Question3, []tb.InlineButton{{Unique: "q3_niepodleglosci", Text: "Ul. Niepodległości"}, {Unique: "q3_chinska", Text: "Ul. Chińska"}, {Unique: "q3_roz", Text: "Ul. Róż"}}, "q3_niepodleglosci"},
+		{msgs.Quiz.Question1, []tb.InlineButton{
+			{Unique: "q1_usos", Text: "USOS"},
+			{Unique: "q1_edupl", Text: "EDUPL"},
+			{Unique: "q1_muci", Text: "MUCI"},
+		}, "q1_usos"},
+		{msgs.Quiz.Question2, []tb.InlineButton{
+			{Unique: "q2_gmail", Text: "Gmail"},
+			{Unique: "q2_outlook", Text: "Outlook"},
+			{Unique: "q2_yahoo", Text: "Yahoo"},
+		}, "q2_outlook"},
+		{msgs.Quiz.Question3, []tb.InlineButton{
+			{Unique: "q3_niepodleglosci", Text: "Ul. Niepodległości"},
+			{Unique: "q3_chinska", Text: "Ul. Chińska"},
+			{Unique: "q3_roz", Text: "Ul. Róż"},
+		}, "q3_niepodleglosci"},
 	}}
 }
-
-var _ = time.Now

@@ -32,21 +32,13 @@ func main() {
 	_ = godotenv.Load()
 
 	// Initialize localization
-	defaultLang := i18n.PL
-	langEnv := os.Getenv("DEFAULT_LANG")
-	switch langEnv {
-	case "pl":
-		defaultLang = i18n.PL
-	case "en":
-		defaultLang = i18n.EN
-	case "ru":
-		defaultLang = i18n.RU
-	case "uk":
-		defaultLang = i18n.UK
-	case "be":
-		defaultLang = i18n.BE
+	langMap := map[string]i18n.Lang{
+		"pl": i18n.PL, "en": i18n.EN, "ru": i18n.RU, "uk": i18n.UK, "be": i18n.BE,
 	}
-
+	defaultLang := i18n.PL
+	if lang, ok := langMap[os.Getenv("DEFAULT_LANG")]; ok {
+		defaultLang = lang
+	}
 	if err := i18n.Init(defaultLang); err != nil {
 		logrus.WithError(err).Fatal("Failed to initialize i18n")
 	}
@@ -55,15 +47,14 @@ func main() {
 	if token == "" {
 		logrus.Fatal("BOT_TOKEN missing")
 	}
-	adminChatIDStr := os.Getenv("ADMIN_CHAT_ID")
-	if adminChatIDStr == "" {
-		logrus.Fatal("ADMIN_CHAT_ID missing")
-	}
-	adminChatID, err := strconv.ParseInt(adminChatIDStr, 10, 64)
+	adminChatID, err := strconv.ParseInt(os.Getenv("ADMIN_CHAT_ID"), 10, 64)
 	if err != nil {
-		logrus.Fatal("ADMIN_CHAT_ID invalid")
+		logrus.Fatal("ADMIN_CHAT_ID invalid or missing")
 	}
-	b, err := tb.NewBot(tb.Settings{Token: token, Poller: &tb.LongPoller{Timeout: 10 * time.Second}})
+	b, err := tb.NewBot(tb.Settings{
+		Token:  token,
+		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
+	})
 	if err != nil {
 		logrus.WithError(err).Fatal("bot create failed")
 	}
@@ -127,37 +118,28 @@ func (h *Handler) handleTextMessage(c tb.Context) error {
 
 // setBotCommands sets bot commands
 func (h *Handler) setBotCommands() {
-	languageMapping := map[string]i18n.Lang{
-		"pl": i18n.PL,
-		"en": i18n.EN,
-		"ru": i18n.RU,
-		"uk": i18n.UK,
-		"be": i18n.BE,
-		"de": i18n.EN,
+	langCodes := map[string]i18n.Lang{
+		"pl": i18n.PL, "en": i18n.EN, "ru": i18n.RU, "uk": i18n.UK, "be": i18n.BE, "de": i18n.EN,
 	}
 
-	// Set commands for each supported language code
-	for langCode, lang := range languageMapping {
+	for code, lang := range langCodes {
 		msgs := i18n.Get().T(lang)
-		commands := []tb.Command{
+		_ = h.bot.SetCommands([]tb.Command{
 			{Text: "ping", Description: msgs.Commands.PingDesc},
 			{Text: "banword", Description: msgs.Commands.BanwordDesc},
 			{Text: "unbanword", Description: msgs.Commands.UnbanwordDesc},
 			{Text: "listbanword", Description: msgs.Commands.ListbanwordDesc},
 			{Text: "spamban", Description: msgs.Commands.SpambanDesc},
-		}
-
-		_ = h.bot.SetCommands(commands, langCode)
+		}, code)
 	}
 
 	// Set default commands
-	msgsPL := i18n.Get().T(i18n.PL)
-	commandsDefault := []tb.Command{
-		{Text: "ping", Description: msgsPL.Commands.PingDesc},
-		{Text: "banword", Description: msgsPL.Commands.BanwordDesc},
-		{Text: "unbanword", Description: msgsPL.Commands.UnbanwordDesc},
-		{Text: "listbanword", Description: msgsPL.Commands.ListbanwordDesc},
-		{Text: "spamban", Description: msgsPL.Commands.SpambanDesc},
-	}
-	_ = h.bot.SetCommands(commandsDefault)
+	msgs := i18n.Get().T(i18n.PL)
+	_ = h.bot.SetCommands([]tb.Command{
+		{Text: "ping", Description: msgs.Commands.PingDesc},
+		{Text: "banword", Description: msgs.Commands.BanwordDesc},
+		{Text: "unbanword", Description: msgs.Commands.UnbanwordDesc},
+		{Text: "listbanword", Description: msgs.Commands.ListbanwordDesc},
+		{Text: "spamban", Description: msgs.Commands.SpambanDesc},
+	})
 }
