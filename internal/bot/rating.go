@@ -722,7 +722,6 @@ func (rh *RatingHandler) HandleRatingsCallback(c tb.Context) error {
 		if len(parts) > 1 {
 			search = parts[1]
 		}
-		_ = rh.bot.Delete(c.Message())
 		return rh.showRatingsPage(c, page, search)
 	}
 
