@@ -460,11 +460,10 @@ func (rh *RatingHandler) formatReviewFromData(r Review, msgs *i18n.Messages) str
 
 	stars := strings.Repeat("⭐", r.Score)
 
-	return fmt.Sprintf("%s: %s\n%s: %s\n%s: [%d/5] %s\n\n%s #%d: %s",
-		msgs.Rating.Sender, sender,
-		msgs.Rating.Professor, r.Professor,
+	return fmt.Sprintf("<b>%s</b>\n%s: [%d/5] %s\n\n%s %s #%d: %s",
+		r.Professor,
 		msgs.Rating.Score, r.Score, stars,
-		msgs.Rating.ReviewLabel, r.ID, r.Text,
+		sender, msgs.Rating.ReviewLabel, r.ID, r.Text,
 	)
 }
 
@@ -672,7 +671,7 @@ func (rh *RatingHandler) showRatingsPage(c tb.Context, page int, search string) 
 	for i, r := range reviews[start:end] {
 		sb.WriteString(rh.formatReviewFromData(r, msgs))
 		if i < len(reviews[start:end])-1 {
-			sb.WriteString("\n\n-----\n\n")
+			sb.WriteString("\n\n━━━━━━━━━━\n\n")
 		}
 	}
 
