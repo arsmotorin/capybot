@@ -677,21 +677,21 @@ func (rh *RatingHandler) showRatingsPage(c tb.Context, page int, search string) 
 
 	if page > 0 {
 		navRow = append(navRow, tb.InlineButton{
-			Unique: fmt.Sprintf("ratings_page_%d_%s", page-1, search),
-			Text:   msgs.Rating.BtnPrev,
+			Data: fmt.Sprintf("ratings_page_%d_%s", page-1, search),
+			Text: msgs.Rating.BtnPrev,
 		})
 	}
 	if page < totalPages-1 {
 		navRow = append(navRow, tb.InlineButton{
-			Unique: fmt.Sprintf("ratings_page_%d_%s", page+1, search),
-			Text:   msgs.Rating.BtnNext,
+			Data: fmt.Sprintf("ratings_page_%d_%s", page+1, search),
+			Text: msgs.Rating.BtnNext,
 		})
 	}
 	if len(navRow) > 0 {
 		buttons = append(buttons, navRow)
 	}
 
-	buttons = append(buttons, []tb.InlineButton{{Unique: "ratings_search", Text: msgs.Rating.BtnSearch}})
+	buttons = append(buttons, []tb.InlineButton{{Data: "ratings_search", Text: msgs.Rating.BtnSearch}})
 
 	kb := &tb.ReplyMarkup{InlineKeyboard: buttons}
 	_, _ = rh.bot.Send(c.Chat(), sb.String(), kb, tb.ModeMarkdown)
@@ -756,9 +756,7 @@ func (rh *RatingHandler) RegisterHandlers(bot *tb.Bot) {
 		bot.Handle(&btn, rh.HandleRateCallback)
 	}
 
-	// Ratings pagination and search
-	bot.Handle(&tb.InlineButton{Unique: "ratings_search"}, rh.HandleRatingsCallback)
-
+	// Handle dynamic callbacks through OnCallback
 	bot.Handle(tb.OnCallback, func(c tb.Context) error {
 		logrus.Info("OnCallback handler invoked")
 
@@ -794,8 +792,8 @@ func (rh *RatingHandler) RegisterHandlers(bot *tb.Bot) {
 			return rh.HandleRateCallback(c)
 		}
 
-		if strings.HasPrefix(callbackID, "ratings_page_") {
-			logrus.WithField("callbackID", callbackID).Debug("Pagination callback detected")
+		if strings.HasPrefix(callbackID, "ratings_page_") || callbackID == "ratings_search" {
+			logrus.WithField("callbackID", callbackID).Debug("Ratings pagination/search callback detected")
 			return rh.HandleRatingsCallback(c)
 		}
 
