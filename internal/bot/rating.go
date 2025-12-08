@@ -417,7 +417,7 @@ func (rh *RatingHandler) HandleRateText(c tb.Context) bool {
 				{{Unique: "rate_cancel", Text: msgs.Rating.BtnCancel}},
 			},
 		}
-		_, _ = rh.bot.Send(c.Chat(), msgs.Rating.ConfirmReview+"\n\n"+preview, kb)
+		_, _ = rh.bot.Send(c.Chat(), msgs.Rating.ConfirmReview+"\n\n"+preview, kb, tb.ModeMarkdown)
 		return true
 	default:
 		panic("unhandled default case")
@@ -437,17 +437,15 @@ func (rh *RatingHandler) formatReview(user *tb.User, session *RatingSession, rev
 		}
 	}
 
-	stars := strings.Repeat("⭐", session.Score)
 	reviewNum := ""
 	if reviewID > 0 {
-		reviewNum = fmt.Sprintf(" #%d", reviewID)
+		reviewNum = fmt.Sprintf("#%d", reviewID)
 	}
 
-	return fmt.Sprintf("%s: %s\n%s: %s\n%s: [%d/5] %s\n\n%s%s: %s",
-		msgs.Rating.Sender, sender,
-		msgs.Rating.Professor, session.Professor,
-		msgs.Rating.Score, session.Score, stars,
-		msgs.Rating.ReviewLabel, reviewNum, session.Text,
+	return fmt.Sprintf("**%s**\n🔸 %s: [%d/5]\n\n💬 %s %s от %s: %s",
+		session.Professor,
+		msgs.Rating.Score, session.Score,
+		msgs.Rating.ReviewLabel, reviewNum, sender, session.Text,
 	)
 }
 
@@ -458,12 +456,10 @@ func (rh *RatingHandler) formatReviewFromData(r Review, msgs *i18n.Messages) str
 		sender = "@" + r.Username
 	}
 
-	stars := strings.Repeat("⭐", r.Score)
-
-	return fmt.Sprintf("<b>%s</b>\n%s: [%d/5] %s\n\n%s %s #%d: %s",
+	return fmt.Sprintf("**%s**\n🔸 %s: [%d/5]\n\n💬 %s #%d от %s: %s",
 		r.Professor,
-		msgs.Rating.Score, r.Score, stars,
-		sender, msgs.Rating.ReviewLabel, r.ID, r.Text,
+		msgs.Rating.Score, r.Score,
+		msgs.Rating.ReviewLabel, r.ID, sender, r.Text,
 	)
 }
 
@@ -698,7 +694,7 @@ func (rh *RatingHandler) showRatingsPage(c tb.Context, page int, search string) 
 	buttons = append(buttons, []tb.InlineButton{{Unique: "ratings_search", Text: msgs.Rating.BtnSearch}})
 
 	kb := &tb.ReplyMarkup{InlineKeyboard: buttons}
-	_, _ = rh.bot.Send(c.Chat(), sb.String(), kb)
+	_, _ = rh.bot.Send(c.Chat(), sb.String(), kb, tb.ModeMarkdown)
 	return nil
 }
 
