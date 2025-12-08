@@ -14,6 +14,9 @@ import (
 	tb "gopkg.in/telebot.v4"
 )
 
+// Version is the current bot version
+const Version = "1.2.0"
+
 // Handler aggregates bot dependencies
 type Handler struct {
 	bot            *tb.Bot
@@ -28,7 +31,7 @@ type Handler struct {
 }
 
 func main() {
-	logrus.Info("Bot is starting...")
+	logrus.WithField("version", Version).Info("Bot is starting...")
 	_ = godotenv.Load()
 
 	// Initialize localization
@@ -102,8 +105,14 @@ func (h *Handler) Register() {
 	h.bot.Handle("/spamban", h.adminHandler.HandleSpamBan)
 	h.bot.Handle("/ping", h.featureHandler.RateLimit(h.featureHandler.HandlePing))
 	h.bot.Handle("/start", h.featureHandler.HandleStart)
+	h.bot.Handle("/version", h.handleVersion)
 	h.bot.Handle(tb.OnText, h.handleTextMessage)
 	h.setBotCommands()
+}
+
+// handleVersion returns bot version
+func (h *Handler) handleVersion(c tb.Context) error {
+	return c.Send("🤖 UEPB Bot v" + Version + ".")
 }
 
 // handleTextMessage handles text messages
@@ -126,6 +135,7 @@ func (h *Handler) setBotCommands() {
 		msgs := i18n.Get().T(lang)
 		_ = h.bot.SetCommands([]tb.Command{
 			{Text: "ping", Description: msgs.Commands.PingDesc},
+			{Text: "version", Description: msgs.Commands.VersionDesc},
 			{Text: "banword", Description: msgs.Commands.BanwordDesc},
 			{Text: "unbanword", Description: msgs.Commands.UnbanwordDesc},
 			{Text: "listbanword", Description: msgs.Commands.ListbanwordDesc},
@@ -137,6 +147,7 @@ func (h *Handler) setBotCommands() {
 	msgs := i18n.Get().T(i18n.PL)
 	_ = h.bot.SetCommands([]tb.Command{
 		{Text: "ping", Description: msgs.Commands.PingDesc},
+		{Text: "version", Description: msgs.Commands.VersionDesc},
 		{Text: "banword", Description: msgs.Commands.BanwordDesc},
 		{Text: "unbanword", Description: msgs.Commands.UnbanwordDesc},
 		{Text: "listbanword", Description: msgs.Commands.ListbanwordDesc},

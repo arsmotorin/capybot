@@ -78,6 +78,7 @@ type Messages struct {
 	} `toml:"start"`
 	Commands struct {
 		PingDesc        string `toml:"ping_desc"`
+		VersionDesc     string `toml:"version_desc"`
 		BanwordDesc     string `toml:"banword_desc"`
 		UnbanwordDesc   string `toml:"unbanword_desc"`
 		ListbanwordDesc string `toml:"listbanword_desc"`

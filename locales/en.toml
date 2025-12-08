@@ -76,6 +76,7 @@ greeting = "👋 Hello! I'm the UEP student group bot.\n\nStart typing commands 
 [commands]
 events_desc = "Learn about university events"
 ping_desc = "Check bot response"
+version_desc = "Show bot version"
 banword_desc = "Add a banned word"
 unbanword_desc = "Remove a banned word"
 listbanword_desc = "Show list of banned words"
