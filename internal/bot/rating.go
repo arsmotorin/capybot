@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -636,6 +637,11 @@ func (rh *RatingHandler) showRatingsPage(c tb.Context, page int, search string) 
 	} else {
 		reviews = rh.store.GetApprovedReviews()
 	}
+
+	// Sort reviews by professor name alphabetically
+	sort.Slice(reviews, func(i, j int) bool {
+		return strings.ToLower(reviews[i].Professor) < strings.ToLower(reviews[j].Professor)
+	})
 
 	if len(reviews) == 0 {
 		text := msgs.Rating.NoReviews
