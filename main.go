@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -27,7 +28,7 @@ type Handler struct {
 	violations     map[int64]int
 	adminHandler   core.AdminHandlerInterface
 	featureHandler core.FeatureHandlerInterface
-	Btns           struct{ Student, Guest, Ads tb.InlineButton }
+	ratingHandler  *bot.RatingHandler
 }
 
 func main() {
@@ -77,17 +78,24 @@ func NewHandler(b *tb.Bot, adminChatID int64) *Handler {
 	h := &Handler{bot: b, state: state, quiz: quiz, blacklist: black, adminChatID: adminChatID, violations: violations}
 
 	// Buttons
-	h.Btns.Student = bot.StudentButton()
-	h.Btns.Guest = bot.GuestButton()
-	h.Btns.Ads = bot.AdsButton()
+	btns := struct{ Student, Guest, Ads tb.InlineButton }{
+		Student: bot.StudentButton(),
+		Guest:   bot.GuestButton(),
+		Ads:     bot.AdsButton(),
+	}
 
 	// Admin
 	adminHandler := bot.NewAdminHandler(b, black, adminChatID, violations)
 	h.adminHandler = adminHandler
 
 	// Feature
-	featureHandler := bot.NewFeatureHandler(b, state, quiz, black, adminChatID, violations, adminHandler, h.Btns)
+	featureHandler := bot.NewFeatureHandler(b, state, quiz, black, adminChatID, violations, adminHandler, btns)
 	h.featureHandler = featureHandler
+
+	// Rating
+	ratingHandler := bot.NewRatingHandler(b, adminChatID, adminHandler)
+	h.ratingHandler = ratingHandler
+
 	return h
 }
 
@@ -95,9 +103,10 @@ func NewHandler(b *tb.Bot, adminChatID int64) *Handler {
 func (h *Handler) Register() {
 	h.bot.Handle(tb.OnUserJoined, h.featureHandler.HandleUserJoined)
 	h.bot.Handle(tb.OnUserLeft, h.featureHandler.HandleUserLeft)
-	h.bot.Handle(&h.Btns.Student, h.featureHandler.OnlyNewbies(h.featureHandler.HandleStudent))
-	h.bot.Handle(&h.Btns.Guest, h.featureHandler.OnlyNewbies(h.featureHandler.HandleGuest))
-	h.bot.Handle(&h.Btns.Ads, h.featureHandler.OnlyNewbies(h.featureHandler.HandleAds))
+	h.bot.Handle("/rate", h.ratingHandler.HandleRate)
+	h.bot.Handle("/ratings", h.ratingHandler.HandleRatings)
+	h.ratingHandler.RegisterHandlers(h.bot)
+
 	h.featureHandler.RegisterQuizHandlers(h.bot)
 	h.bot.Handle("/banword", h.adminHandler.HandleBan)
 	h.bot.Handle("/unbanword", h.adminHandler.HandleUnban)
@@ -112,12 +121,19 @@ func (h *Handler) Register() {
 
 // handleVersion returns bot version
 func (h *Handler) handleVersion(c tb.Context) error {
-	return c.Send("🤖 UEPB Bot v" + Version + ".")
+	return c.Send(fmt.Sprintf("🤖 Bot version: %s", Version))
 }
 
 // handleTextMessage handles text messages
 func (h *Handler) handleTextMessage(c tb.Context) error {
 	if c.Chat().Type == tb.ChatPrivate {
+		// Check rating input first
+		if h.ratingHandler.HandleRateText(c) {
+			return nil
+		}
+		if h.ratingHandler.HandleSearchText(c) {
+			return nil
+		}
 		if err := h.featureHandler.HandlePrivateMessage(c); err != nil {
 			return err
 		}
@@ -127,27 +143,29 @@ func (h *Handler) handleTextMessage(c tb.Context) error {
 
 // setBotCommands sets bot commands
 func (h *Handler) setBotCommands() {
-	langCodes := map[string]i18n.Lang{
-		"pl": i18n.PL, "en": i18n.EN, "ru": i18n.RU, "uk": i18n.UK, "be": i18n.BE, "de": i18n.EN,
-	}
+	languages := []i18n.Lang{i18n.PL, i18n.EN, i18n.RU, i18n.UK, i18n.BE}
 
-	for code, lang := range langCodes {
+	for _, lang := range languages {
 		msgs := i18n.Get().T(lang)
-		_ = h.bot.SetCommands([]tb.Command{
+		commands := []tb.Command{
+			{Text: "start", Description: msgs.Commands.StartDesc},
 			{Text: "ping", Description: msgs.Commands.PingDesc},
 			{Text: "version", Description: msgs.Commands.VersionDesc},
-			{Text: "banword", Description: msgs.Commands.BanwordDesc},
-			{Text: "unbanword", Description: msgs.Commands.UnbanwordDesc},
-			{Text: "listbanword", Description: msgs.Commands.ListbanwordDesc},
-			{Text: "spamban", Description: msgs.Commands.SpambanDesc},
-		}, code)
+			{Text: "rate", Description: msgs.Commands.RateDesc},
+			{Text: "ratings", Description: msgs.Commands.RatingsDesc},
+		}
+
+		// Set commands with language code
+		_ = h.bot.SetCommands(commands, tb.CommandScope{Type: tb.CommandScopeDefault}, string(lang))
 	}
 
-	// Set default commands
+	// Set default commands (no language specified) for backward compatibility
 	msgs := i18n.Get().T(i18n.PL)
 	_ = h.bot.SetCommands([]tb.Command{
 		{Text: "ping", Description: msgs.Commands.PingDesc},
 		{Text: "version", Description: msgs.Commands.VersionDesc},
+		{Text: "rate", Description: msgs.Commands.RateDesc},
+		{Text: "ratings", Description: msgs.Commands.RatingsDesc},
 		{Text: "banword", Description: msgs.Commands.BanwordDesc},
 		{Text: "unbanword", Description: msgs.Commands.UnbanwordDesc},
 		{Text: "listbanword", Description: msgs.Commands.ListbanwordDesc},

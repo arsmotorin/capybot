@@ -77,47 +77,86 @@ type Messages struct {
 		Greeting string `toml:"greeting"`
 	} `toml:"start"`
 	Commands struct {
+		StartDesc       string `toml:"start_desc"`
 		PingDesc        string `toml:"ping_desc"`
 		VersionDesc     string `toml:"version_desc"`
 		BanwordDesc     string `toml:"banword_desc"`
 		UnbanwordDesc   string `toml:"unbanword_desc"`
 		ListbanwordDesc string `toml:"listbanword_desc"`
 		SpambanDesc     string `toml:"spamban_desc"`
+		RateDesc        string `toml:"rate_desc"`
+		RatingsDesc     string `toml:"ratings_desc"`
 	} `toml:"commands"`
+	Rating struct {
+		ChooseType      string `toml:"choose_type"`
+		EnterName       string `toml:"enter_name"`
+		InvalidName     string `toml:"invalid_name"`
+		ChooseScore     string `toml:"choose_score"`
+		EnterReview     string `toml:"enter_review"`
+		ReviewTooShort  string `toml:"review_too_short"`
+		ReviewTooLong   string `toml:"review_too_long"`
+		ConfirmReview   string `toml:"confirm_review"`
+		Submitted       string `toml:"submitted"`
+		Cancelled       string `toml:"cancelled"`
+		Blocked         string `toml:"blocked"`
+		ReviewApproved  string `toml:"review_approved"`
+		ReviewRejected  string `toml:"review_rejected"`
+		NoReviews       string `toml:"no_reviews"`
+		NoSearchResults string `toml:"no_search_results"`
+		ListHeader      string `toml:"list_header"`
+		SearchPrompt    string `toml:"search_prompt"`
+		BtnPublic       string `toml:"btn_public"`
+		BtnAnonymous    string `toml:"btn_anonymous"`
+		BtnCancel       string `toml:"btn_cancel"`
+		BtnSubmit       string `toml:"btn_submit"`
+		BtnApprove      string `toml:"btn_approve"`
+		BtnReject       string `toml:"btn_reject"`
+		BtnBlock        string `toml:"btn_block"`
+		BtnPrev         string `toml:"btn_prev"`
+		BtnNext         string `toml:"btn_next"`
+		BtnSearch       string `toml:"btn_search"`
+		Sender          string `toml:"sender"`
+		Professor       string `toml:"professor"`
+		Score           string `toml:"score"`
+		ReviewLabel     string `toml:"review_label"`
+		Anonymous       string `toml:"anonymous"`
+		Public          string `toml:"public"`
+		TypeLabel       string `toml:"type_label"`
+		NewReviewAdmin  string `toml:"new_review_admin"`
+		StatusApproved  string `toml:"status_approved"`
+		StatusRejected  string `toml:"status_rejected"`
+		StatusBlocked   string `toml:"status_blocked"`
+	} `toml:"rating"`
 }
 
 // Localizer manages translations
 type Localizer struct {
-	messages    map[Lang]*Messages
 	mu          sync.RWMutex
+	messages    map[Lang]*Messages
 	defaultLang Lang
 }
 
 var globalLocalizer *Localizer
-var once sync.Once
 
-// Init initializes the localizer
+// Init initializes localization
 func Init(defaultLang Lang) error {
-	var initErr error
-	once.Do(func() {
-		globalLocalizer = &Localizer{
-			messages:    make(map[Lang]*Messages),
-			defaultLang: defaultLang,
-		}
+	globalLocalizer = &Localizer{
+		messages:    make(map[Lang]*Messages),
+		defaultLang: defaultLang,
+	}
 
-		// Load all languages
-		langs := []Lang{PL, EN, RU, UK, BE}
-		for _, lang := range langs {
-			if err := globalLocalizer.loadLanguage(lang); err != nil {
-				initErr = fmt.Errorf("failed to load %s: %w", lang, err)
-				return
-			}
+	// Load all languages
+	languages := []Lang{PL, EN, RU, UK, BE}
+	for _, lang := range languages {
+		if err := globalLocalizer.loadLanguage(lang); err != nil {
+			logrus.WithError(err).WithField("lang", lang).Warn("Failed to load language")
 		}
-	})
-	return initErr
+	}
+
+	return nil
 }
 
-// loadLanguage loads the TOML file for a language
+// loadLanguage loads a language file
 func (l *Localizer) loadLanguage(lang Lang) error {
 	path := fmt.Sprintf("locales/%s.toml", lang)
 	data, err := os.ReadFile(path)
