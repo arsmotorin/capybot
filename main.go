@@ -16,7 +16,7 @@ import (
 )
 
 // Version is the current bot version
-const Version = "1.2.0"
+const Version = "1.2.1"
 
 // GitHubRepo is the repository URL
 const GitHubRepo = "https://github.com/arsmotorin/capybot"

@@ -437,7 +437,7 @@ func (rh *RatingHandler) formatReview(user *tb.User, session *RatingSession, rev
 		}
 	}
 
-	stars := strings.Repeat("⭐", session.Score) + strings.Repeat("☆", 5-session.Score)
+	stars := strings.Repeat("⭐", session.Score)
 	reviewNum := ""
 	if reviewID > 0 {
 		reviewNum = fmt.Sprintf(" #%d", reviewID)
@@ -458,7 +458,7 @@ func (rh *RatingHandler) formatReviewFromData(r Review, msgs *i18n.Messages) str
 		sender = "@" + r.Username
 	}
 
-	stars := strings.Repeat("⭐", r.Score) + strings.Repeat("☆", 5-r.Score)
+	stars := strings.Repeat("⭐", r.Score)
 
 	return fmt.Sprintf("%s: %s\n%s: %s\n%s: [%d/5] %s\n\n%s #%d: %s",
 		msgs.Rating.Sender, sender,
