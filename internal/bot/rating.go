@@ -442,7 +442,7 @@ func (rh *RatingHandler) formatReview(user *tb.User, session *RatingSession, rev
 		reviewNum = fmt.Sprintf("#%d", reviewID)
 	}
 
-	return fmt.Sprintf("**%s**\n🔸 %s: [%d/5]\n\n💬 %s %s от %s: %s",
+	return fmt.Sprintf("👨‍🏫 *%s*\n🔸 %s: [%d/5]\n\n💬 %s %s от %s: %s",
 		session.Professor,
 		msgs.Rating.Score, session.Score,
 		msgs.Rating.ReviewLabel, reviewNum, sender, session.Text,
@@ -456,7 +456,7 @@ func (rh *RatingHandler) formatReviewFromData(r Review, msgs *i18n.Messages) str
 		sender = "@" + r.Username
 	}
 
-	return fmt.Sprintf("**%s**\n🔸 %s: [%d/5]\n\n💬 %s #%d от %s: %s",
+	return fmt.Sprintf("👨‍🏫 *%s*\n🔸 %s: [%d/5]\n\n💬 %s #%d от %s: %s",
 		r.Professor,
 		msgs.Rating.Score, r.Score,
 		msgs.Rating.ReviewLabel, r.ID, sender, r.Text,
