@@ -674,23 +674,29 @@ func (rh *RatingHandler) showRatingsPage(c tb.Context, page int, search string) 
 
 	// Build keyboard
 	var buttons [][]tb.InlineButton
-	var navRow []tb.InlineButton
 
-	if page > 0 {
-		navRow = append(navRow, tb.InlineButton{
-			Data: fmt.Sprintf("ratings_page_%d_%s", page-1, search),
+	// Circular pagination
+	prevPage := page - 1
+	if prevPage < 0 {
+		prevPage = totalPages - 1
+	}
+
+	nextPage := page + 1
+	if nextPage >= totalPages {
+		nextPage = 0
+	}
+
+	navRow := []tb.InlineButton{
+		{
+			Data: fmt.Sprintf("ratings_page_%d_%s", prevPage, search),
 			Text: msgs.Rating.BtnPrev,
-		})
-	}
-	if page < totalPages-1 {
-		navRow = append(navRow, tb.InlineButton{
-			Data: fmt.Sprintf("ratings_page_%d_%s", page+1, search),
+		},
+		{
+			Data: fmt.Sprintf("ratings_page_%d_%s", nextPage, search),
 			Text: msgs.Rating.BtnNext,
-		})
+		},
 	}
-	if len(navRow) > 0 {
-		buttons = append(buttons, navRow)
-	}
+	buttons = append(buttons, navRow)
 
 	buttons = append(buttons, []tb.InlineButton{{Data: "ratings_search", Text: msgs.Rating.BtnSearch}})
 
