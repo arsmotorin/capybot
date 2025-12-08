@@ -1,4 +1,4 @@
-module UEPB
+module capybot
 
 go 1.25.5
 

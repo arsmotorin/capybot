@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	"UEPB/internal/bot"
-	"UEPB/internal/core"
-	"UEPB/internal/i18n"
+	"capybot/internal/bot"
+	"capybot/internal/core"
+	"capybot/internal/i18n"
 
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
@@ -17,6 +17,9 @@ import (
 
 // Version is the current bot version
 const Version = "1.2.0"
+
+// GitHubRepo is the repository URL
+const GitHubRepo = "https://github.com/arsmotorin/capybot"
 
 // Handler aggregates bot dependencies
 type Handler struct {
@@ -121,7 +124,7 @@ func (h *Handler) Register() {
 
 // handleVersion returns bot version
 func (h *Handler) handleVersion(c tb.Context) error {
-	return c.Send(fmt.Sprintf("🤖 Bot version: %s", Version))
+	return c.Send(fmt.Sprintf("🤖 Bot version: %s\n🔗 GitHub: %s", Version, GitHubRepo))
 }
 
 // handleTextMessage handles text messages

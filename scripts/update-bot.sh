@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SESSION_NAME="uepb-bot"
+SESSION_NAME="capybot"
 SCRIPT_DIR="$(cd -- "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
@@ -17,7 +17,7 @@ git -C "$REPO_ROOT" reset --hard "origin/$DEFAULT_BRANCH"
 git -C "$REPO_ROOT" clean -fd
 
 echo "Building..."
-if ! (cd "$REPO_ROOT" && go build -o uepb-bot .); then
+if ! (cd "$REPO_ROOT" && go build -o capybot .); then
     echo "Error!"
     exit 1
 fi

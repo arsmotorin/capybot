@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SESSION_NAME="uepb-bot"
+SESSION_NAME="capybot"
 
 if screen -list | grep -q "$SESSION_NAME"; then
     echo "Bot is already running: screen -r $SESSION_NAME"
@@ -10,7 +10,7 @@ fi
 cd /home/ubuntu/telegram-bot
 
 echo "Building..."
-go build -o uepb-bot .
+go build -o capybot .
 
 if [ $? -ne 0 ]; then
     echo "Error!"
@@ -19,7 +19,7 @@ fi
 
 mkdir -p logs data
 
-screen -dmS "$SESSION_NAME" bash -c "./uepb-bot 2>&1 | tee logs/bot-$(date +%Y%m%d-%H%M%S).log"
+screen -dmS "$SESSION_NAME" bash -c "./capybot 2>&1 | tee logs/bot-$(date +%Y%m%d-%H%M%S).log"
 
 sleep 1
 

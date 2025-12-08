@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"UEPB/internal/core"
-	"UEPB/internal/i18n"
+	"capybot/internal/core"
+	"capybot/internal/i18n"
 
 	"github.com/sirupsen/logrus"
 	tb "gopkg.in/telebot.v4"

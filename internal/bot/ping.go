@@ -1,7 +1,7 @@
 package bot
 
 import (
-	"UEPB/internal/i18n"
+	"capybot/internal/i18n"
 	"fmt"
 	"time"
 

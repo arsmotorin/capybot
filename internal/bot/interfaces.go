@@ -1,7 +1,7 @@
 package bot
 
 import (
-	"UEPB/internal/core"
+	"capybot/internal/core"
 
 	tb "gopkg.in/telebot.v4"
 )

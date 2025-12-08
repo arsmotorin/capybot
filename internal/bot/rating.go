@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"UEPB/internal/i18n"
+	"capybot/internal/i18n"
 
 	"github.com/sirupsen/logrus"
 	tb "gopkg.in/telebot.v4"

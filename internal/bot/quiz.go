@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"UEPB/internal/core"
-	"UEPB/internal/i18n"
+	"capybot/internal/core"
+	"capybot/internal/i18n"
 
 	tb "gopkg.in/telebot.v4"
 )
