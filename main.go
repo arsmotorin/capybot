@@ -125,7 +125,8 @@ func (h *Handler) Register() {
 // handleVersion returns bot version
 func (h *Handler) handleVersion(c tb.Context) error {
 	if c.Chat().Type != tb.ChatPrivate {
-		msgs := i18n.Get().T(i18n.Get().GetDefault())
+		lang := getLangForUser(c.Sender())
+		msgs := i18n.Get().T(lang)
 		warnMsg, err := h.bot.Send(c.Chat(), msgs.Common.PrivateOnly)
 		if err != nil {
 			return err
@@ -136,6 +137,26 @@ func (h *Handler) handleVersion(c tb.Context) error {
 		return nil
 	}
 	return c.Send(fmt.Sprintf("🤖 Bot version: %s\n🔗 GitHub: %s", Version, GitHubRepo))
+}
+
+// getLangForUser returns language for a specific user based on their Telegram language
+func getLangForUser(user *tb.User) i18n.Lang {
+	if user == nil {
+		return i18n.Get().GetDefault()
+	}
+	langCode := user.LanguageCode
+	if langCode == "" {
+		return i18n.Get().GetDefault()
+	}
+
+	langMap := map[string]i18n.Lang{
+		"pl": i18n.PL, "en": i18n.EN, "ru": i18n.RU, "uk": i18n.UK, "be": i18n.BE,
+	}
+
+	if lang, ok := langMap[langCode]; ok {
+		return lang
+	}
+	return i18n.Get().GetDefault()
 }
 
 // handleTextMessage handles text messages
