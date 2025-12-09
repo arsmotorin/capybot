@@ -652,9 +652,19 @@ func (rh *RatingHandler) showRatingsPage(c tb.Context, page int, search string) 
 		return nil
 	}
 
-	// Pagination
-	perPage := 5
-	totalPages := (len(reviews) + perPage - 1) / perPage
+	// Group reviews by professor
+	professorGroups := make(map[string][]Review)
+	var professorOrder []string
+	for _, r := range reviews {
+		if _, exists := professorGroups[r.Professor]; !exists {
+			professorOrder = append(professorOrder, r.Professor)
+		}
+		professorGroups[r.Professor] = append(professorGroups[r.Professor], r)
+	}
+
+	// Pagination by professor groups (not individual reviews)
+	perPage := 3 // Show 3 professors per page
+	totalPages := (len(professorOrder) + perPage - 1) / perPage
 	if page < 0 {
 		page = 0
 	}
@@ -664,17 +674,38 @@ func (rh *RatingHandler) showRatingsPage(c tb.Context, page int, search string) 
 
 	start := page * perPage
 	end := start + perPage
-	if end > len(reviews) {
-		end = len(reviews)
+	if end > len(professorOrder) {
+		end = len(professorOrder)
 	}
 
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("📊 %s (%d/%d)\n\n", msgs.Rating.ListHeader, page+1, totalPages))
 
-	for i, r := range reviews[start:end] {
-		sb.WriteString(rh.formatReviewFromData(r, msgs))
-		if i < len(reviews[start:end])-1 {
-			sb.WriteString("\n\n━━━━━━━━━━\n\n")
+	// Display grouped reviews
+	for i, professor := range professorOrder[start:end] {
+		professorReviews := professorGroups[professor]
+
+		// Show professor name once
+		sb.WriteString(fmt.Sprintf("*%s*\n", professor))
+
+		// Show all reviews for this professor
+		for _, r := range professorReviews {
+			sender := msgs.Rating.Anonymous
+			if !r.IsAnonymous {
+				sender = "@" + r.Username
+			}
+			sb.WriteString(fmt.Sprintf("🔸 %s: [%d/5]\n💬 %s #%d от %s: %s\n",
+				msgs.Rating.Score, r.Score,
+				msgs.Rating.ReviewLabel, r.ID, sender, r.Text,
+			))
+			if r.ID != professorReviews[len(professorReviews)-1].ID {
+				sb.WriteString("\n")
+			}
+		}
+
+		// Add separator between professors
+		if i < len(professorOrder[start:end])-1 {
+			sb.WriteString("\n━━━━━━━━━━\n\n")
 		}
 	}
 
