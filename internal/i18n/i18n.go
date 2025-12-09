@@ -46,10 +46,12 @@ type Messages struct {
 	Ads struct {
 		Message string `toml:"message"`
 	} `toml:"ads"`
-	Ping struct {
-		Pong        string `toml:"pong"`
-		PongWithMs  string `toml:"pong_with_ms"`
+	Common struct {
 		PrivateOnly string `toml:"private_only"`
+	} `toml:"common"`
+	Ping struct {
+		Pong       string `toml:"pong"`
+		PongWithMs string `toml:"pong_with_ms"`
 	} `toml:"ping"`
 	RateLimit struct {
 		TooFast string `toml:"too_fast"`

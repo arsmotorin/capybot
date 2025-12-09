@@ -19,7 +19,7 @@ func (fh *FeatureHandler) HandlePing(c tb.Context) error {
 		return nil
 	}
 	if c.Chat().Type != tb.ChatPrivate {
-		warnMsg, err := fh.bot.Send(c.Chat(), msgs.Ping.PrivateOnly)
+		warnMsg, err := fh.bot.Send(c.Chat(), msgs.Common.PrivateOnly)
 		if err != nil {
 			logrus.WithError(err).WithFields(logrus.Fields{"chat_id": c.Chat().ID, "user_id": c.Sender().ID}).Error("Failed to send ping warning in group")
 			return err

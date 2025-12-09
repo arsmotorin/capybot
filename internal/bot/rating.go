@@ -254,11 +254,13 @@ func (rh *RatingHandler) getLangForUser(user *tb.User) i18n.Lang {
 
 // HandleRate starts rating flow
 func (rh *RatingHandler) HandleRate(c tb.Context) error {
-	if c.Chat().Type != tb.ChatPrivate {
-		return nil
-	}
 	lang := rh.getLangForUser(c.Sender())
 	msgs := i18n.Get().T(lang)
+
+	if c.Chat().Type != tb.ChatPrivate {
+		_, _ = rh.bot.Send(c.Chat(), msgs.Common.PrivateOnly)
+		return nil
+	}
 
 	userID := c.Sender().ID
 	if rh.store.IsBlocked(userID) {
@@ -622,7 +624,11 @@ func (rh *RatingHandler) handleAdminBlock(c tb.Context) error {
 
 // HandleRatings shows the ratings list
 func (rh *RatingHandler) HandleRatings(c tb.Context) error {
+	lang := rh.getLangForUser(c.Sender())
+	msgs := i18n.Get().T(lang)
+
 	if c.Chat().Type != tb.ChatPrivate {
+		_, _ = rh.bot.Send(c.Chat(), msgs.Common.PrivateOnly)
 		return nil
 	}
 	return rh.showRatingsPage(c, 0, "")

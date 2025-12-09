@@ -26,10 +26,12 @@ can_write = "✅ Teraz możesz pisać na czacie. Zadaj swoje pytanie."
 [ads]
 message = "📢 Jesteśmy otwarci na reklamę.\n\nNapisz do @chathlp i opisz, co chcesz zaproponować."
 
+[common]
+private_only = "ℹ️ Ta komenda jest dostępna tylko w prywatnych wiadomościach z botem."
+
 [ping]
 pong = "🏓 Pong!"
 pong_with_ms = "🏓 Pong! (%d ms)"
-private_only = "ℹ️ Komenda /ping jest dostępna tylko w prywatnych wiadomościach z botem."
 
 [ratelimit]
 too_fast = "⏱️ Proszę, nie częściej niż jedna komenda na sekundę."
@@ -38,7 +40,6 @@ too_fast = "⏱️ Proszę, nie częściej niż jedna komenda na sekundę."
 loading = "🔄 Ładowanie wydarzeń..."
 error_loading = "❌ Błąd podczas ładowania wydarzeń."
 no_events = "❌ Brak wydarzeń."
-private_only = "ℹ️ Komenda /events jest dostępna tylko w prywatnych wiadomościach z botem."
 rate_limit = "⏱️ Komenda /events jest dostępna raz na 30 sekund. Spróbuj ponownie za %d sek."
 first_event = "To pierwsze wydarzenie"
 last_event = "To ostatnie wydarzenie"
@@ -121,6 +122,6 @@ anonymous = "Anonim"
 public = "Publiczna"
 type_label = "Typ"
 new_review_admin = "Nowa opinia do moderacji"
-status_approved = "✅ Opinia zatwierdzona"
-status_rejected = "❌ Opinia odrzucona"
-status_blocked = "🚫 Użytkownik zablokowany"
+status_approved = "✅ Opinia zatwierdzona."
+status_rejected = "❌ Opinia odrzucona."
+status_blocked = "🚫 Użytkownik zablokowany."

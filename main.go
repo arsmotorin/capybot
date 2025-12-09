@@ -124,6 +124,17 @@ func (h *Handler) Register() {
 
 // handleVersion returns bot version
 func (h *Handler) handleVersion(c tb.Context) error {
+	if c.Chat().Type != tb.ChatPrivate {
+		msgs := i18n.Get().T(i18n.Get().GetDefault())
+		warnMsg, err := h.bot.Send(c.Chat(), msgs.Common.PrivateOnly)
+		if err != nil {
+			return err
+		}
+		if h.adminHandler != nil {
+			h.adminHandler.DeleteAfter(warnMsg, 5*time.Second)
+		}
+		return nil
+	}
 	return c.Send(fmt.Sprintf("🤖 Bot version: %s\n🔗 GitHub: %s", Version, GitHubRepo))
 }
 
@@ -153,6 +164,7 @@ func (h *Handler) setBotCommands() {
 		commands := []tb.Command{
 			{Text: "start", Description: msgs.Commands.StartDesc},
 			{Text: "ping", Description: msgs.Commands.PingDesc},
+			// {Text: "events", Description: msgs.Commands.EventsDesc},
 			{Text: "version", Description: msgs.Commands.VersionDesc},
 			{Text: "rate", Description: msgs.Commands.RateDesc},
 			{Text: "ratings", Description: msgs.Commands.RatingsDesc},
@@ -161,17 +173,4 @@ func (h *Handler) setBotCommands() {
 		// Set commands with language code
 		_ = h.bot.SetCommands(commands, tb.CommandScope{Type: tb.CommandScopeDefault}, string(lang))
 	}
-
-	// Set default commands (no language specified) for backward compatibility
-	msgs := i18n.Get().T(i18n.PL)
-	_ = h.bot.SetCommands([]tb.Command{
-		{Text: "ping", Description: msgs.Commands.PingDesc},
-		{Text: "version", Description: msgs.Commands.VersionDesc},
-		{Text: "rate", Description: msgs.Commands.RateDesc},
-		{Text: "ratings", Description: msgs.Commands.RatingsDesc},
-		{Text: "banword", Description: msgs.Commands.BanwordDesc},
-		{Text: "unbanword", Description: msgs.Commands.UnbanwordDesc},
-		{Text: "listbanword", Description: msgs.Commands.ListbanwordDesc},
-		{Text: "spamban", Description: msgs.Commands.SpambanDesc},
-	})
 }

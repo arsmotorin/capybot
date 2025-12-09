@@ -26,10 +26,12 @@ can_write = "✅ Now you can write in the chat. Ask your question."
 [ads]
 message = "📢 We are open to advertising.\n\nWrite to @chathlp and describe what you want to offer."
 
+[common]
+private_only = "ℹ️ This command is only available in private messages with the bot."
+
 [ping]
 pong = "🏓 Pong!"
 pong_with_ms = "🏓 Pong! (%d ms)"
-private_only = "ℹ️ The /ping command is only available in private messages with the bot."
 
 [ratelimit]
 too_fast = "⏱️ Please, no more than one command per second."
@@ -38,7 +40,6 @@ too_fast = "⏱️ Please, no more than one command per second."
 loading = "🔄 Loading events..."
 error_loading = "❌ Error loading events."
 no_events = "❌ No events."
-private_only = "ℹ️ The /events command is only available in private messages with the bot."
 rate_limit = "⏱️ The /events command is available once every 30 seconds. Try again in %d sec."
 first_event = "This is the first event"
 last_event = "This is the last event"
@@ -121,6 +122,6 @@ anonymous = "Anonymous"
 public = "Public"
 type_label = "Type"
 new_review_admin = "New review for moderation"
-status_approved = "✅ Review approved"
-status_rejected = "❌ Review rejected"
-status_blocked = "🚫 User blocked"
+status_approved = "✅ Review approved."
+status_rejected = "❌ Review rejected."
+status_blocked = "🚫 User blocked."
