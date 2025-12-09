@@ -420,11 +420,14 @@ func (rh *RatingHandler) HandleRateText(c tb.Context) bool {
 		}
 		_, _ = rh.bot.Send(c.Chat(), msgs.Rating.ConfirmReview+"\n\n"+preview, kb, tb.ModeMarkdown)
 		return true
-	default:
-		panic("unhandled default case")
-	}
 
-	return false
+	default:
+		logrus.WithFields(logrus.Fields{
+			"user_id": userID,
+			"step":    session.Step,
+		}).Debug("Text received during non-text step, ignoring")
+		return true
+	}
 }
 
 // formatReview formats a review for display
